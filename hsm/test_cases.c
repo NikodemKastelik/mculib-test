@@ -50,6 +50,9 @@ hsm_t hsm;
 enum test_events
 {
     HSM_TEST_EVENT_NEXT,
+    HSM_TEST_EVENT_GO_TO_S1,
+    HSM_TEST_EVENT_GO_TO_S2,
+    HSM_TEST_EVENT_GO_TO_S3,
     HSM_TEST_EVENT_GO_TO_S121,
     HSM_TEST_EVENT_PARENT_ONLY,
     HSM_TEST_EVENT_SELF,
@@ -62,6 +65,16 @@ static bool state_s111_handler(hsm_event_t evt);
 static bool state_s12_handler(hsm_event_t evt);
 static bool state_s121_handler(hsm_event_t evt);
 
+static bool state_s2a_handler(hsm_event_t evt);
+static bool state_s2b_handler(hsm_event_t evt);
+static bool state_s2c_handler(hsm_event_t evt);
+static bool state_s2d_handler(hsm_event_t evt);
+
+static bool state_s3_handler(hsm_event_t evt);
+static bool state_s31_handler(hsm_event_t evt);
+static bool state_s311_handler(hsm_event_t evt);
+static bool state_s3111_handler(hsm_event_t evt);
+
 static const hsm_state_t state_top  = {state_top_handler,  NULL};
 static const hsm_state_t state_s1   = {state_s1_handler,   &state_top};
 static const hsm_state_t state_s11  = {state_s11_handler,  &state_s1};
@@ -69,18 +82,36 @@ static const hsm_state_t state_s111 = {state_s111_handler, &state_s11};
 static const hsm_state_t state_s12  = {state_s12_handler,  &state_s1};
 static const hsm_state_t state_s121 = {state_s121_handler, &state_s12};
 
+static const hsm_state_t state_s2a = {state_s2a_handler, &state_top};
+static const hsm_state_t state_s2b = {state_s2b_handler, &state_top};
+static const hsm_state_t state_s2c = {state_s2c_handler, &state_top};
+static const hsm_state_t state_s2d = {state_s2d_handler, &state_top};
+
+static const hsm_state_t state_s3    = {state_s3_handler,    &state_top};
+static const hsm_state_t state_s31   = {state_s31_handler,   &state_s3};
+static const hsm_state_t state_s311  = {state_s311_handler,  &state_s31};
+static const hsm_state_t state_s3111 = {state_s3111_handler, &state_s311};
+
 static bool state_top_handler(hsm_event_t evt)
 {
     test_event_register(&state_top, evt);
     switch (evt)
     {
         case HSM_EVENT_ENTRY:
+            break;
+        case HSM_TEST_EVENT_GO_TO_S1:
             hsm_transition(&hsm, &state_s1);
+            break;
+        case HSM_TEST_EVENT_GO_TO_S2:
+            hsm_transition(&hsm, &state_s2a);
+            break;
+        case HSM_TEST_EVENT_GO_TO_S3:
+            hsm_transition(&hsm, &state_s3);
             break;
         default:
             return false;
     }
-    return false;
+    return true;
 }
 
 static bool state_s1_handler(hsm_event_t evt)
@@ -144,7 +175,6 @@ static bool state_s111_handler(hsm_event_t evt)
     return true;
 }
 
-
 static bool state_s12_handler(hsm_event_t evt)
 {
     test_event_register(&state_s12, evt);
@@ -175,6 +205,132 @@ static bool state_s121_handler(hsm_event_t evt)
     return true;
 }
 
+static bool state_s2a_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s2a, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            hsm_transition(&hsm, &state_s2b);
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s2b_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s2b, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            hsm_transition(&hsm, &state_s2c);
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s2c_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s2c, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            hsm_transition(&hsm, &state_s2d);
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s2d_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s2d, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s3_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s3, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            hsm_transition(&hsm, &state_s31);
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s31_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s31, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            hsm_transition(&hsm, &state_s311);
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s311_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s311, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            hsm_transition(&hsm, &state_s3111);
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+static bool state_s3111_handler(hsm_event_t evt)
+{
+    test_event_register(&state_s3111, evt);
+    switch (evt)
+    {
+        case HSM_EVENT_ENTRY:
+            break;
+        case HSM_EVENT_EXIT:
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
 /* Actual tests */
 
 static char * state_name_get(const hsm_state_t * p_state)
@@ -187,6 +343,14 @@ static char * state_name_get(const hsm_state_t * p_state)
     else if (p_st == (uintptr_t)&state_s111)       return "STATE_S111";
     else if (p_st == (uintptr_t)&state_s12)        return "STATE_S12";
     else if (p_st == (uintptr_t)&state_s121)       return "STATE_S121";
+    else if (p_st == (uintptr_t)&state_s2a)        return "STATE_S2A";
+    else if (p_st == (uintptr_t)&state_s2b)        return "STATE_S2B";
+    else if (p_st == (uintptr_t)&state_s2c)        return "STATE_S2C";
+    else if (p_st == (uintptr_t)&state_s2d)        return "STATE_S2D";
+    else if (p_st == (uintptr_t)&state_s3)         return "STATE_S3";
+    else if (p_st == (uintptr_t)&state_s31)        return "STATE_S31";
+    else if (p_st == (uintptr_t)&state_s311)       return "STATE_S311";
+    else if (p_st == (uintptr_t)&state_s3111)      return "STATE_S3111";
     else
     {
         TEST_FAIL_MESSAGE("Provided state not handled in name getter.");
@@ -202,6 +366,9 @@ static char * event_name_get(hsm_event_t evt)
         case HSM_EVENT_EXIT:             return "EXIT";
         case HSM_TEST_EVENT_NEXT:        return "NEXT";
         case HSM_TEST_EVENT_PARENT_ONLY: return "PARENT_ONLY";
+        case HSM_TEST_EVENT_GO_TO_S1:    return "GO_TO_S1";
+        case HSM_TEST_EVENT_GO_TO_S2:    return "GO_TO_S2";
+        case HSM_TEST_EVENT_GO_TO_S3:    return "GO_TO_S3";
         case HSM_TEST_EVENT_GO_TO_S121:  return "GO_TO_S121";
         case HSM_TEST_EVENT_SELF:        return "SELF";
         default:
@@ -212,17 +379,29 @@ static char * event_name_get(hsm_event_t evt)
 
 static void verify_test_events(test_event_t * expected_events, size_t evt_num)
 {
+    char string[128];
+    (void)snprintf(string, sizeof(string), "none");
     for (size_t i = 0; i < evt_num; i++)
     {
         test_event_t * received_evt = test_event_pop();
         test_event_t * expected_evt = &expected_events[i];
 
-        TEST_ASSERT_MESSAGE(received_evt, "More expected events than received events");
+        if (!received_evt)
+        {
+            char buffer[256];
+            (void)snprintf(buffer,
+                           sizeof(buffer),
+                           "More expected events than received events. Last check: %s. "
+                           "Next expected event: %s for state: %s",
+                           string,
+                           event_name_get(expected_evt->evt),
+                           state_name_get(expected_evt->state));
+            TEST_ASSERT_MESSAGE(received_evt, buffer);
+        }
 
-        char string[128];
         snprintf(string,
                  sizeof(string),
-                 "On event %zu. State expected %s, was %s. Event expected %s, was %s",
+                 "On event %zu, state expected %s - was %s, event expected %s - was %s",
                   i,
                   state_name_get(expected_evt->state),
                   state_name_get(received_evt->state),
@@ -297,10 +476,12 @@ void test_start(void)
     test_event_t expected_events[] =
     {
         {&state_top, HSM_EVENT_ENTRY},
+        {&state_top, HSM_TEST_EVENT_GO_TO_S1},
         {&state_s1,  HSM_EVENT_ENTRY},
     };
 
     hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S1);
 
     verify_test_events(expected_events, sizeof(expected_events) / sizeof(expected_events[0]));
 }
@@ -310,12 +491,14 @@ void test_simple_transition(void)
     test_event_t expected_events[] =
     {
         {&state_top, HSM_EVENT_ENTRY},
+        {&state_top, HSM_TEST_EVENT_GO_TO_S1},
         {&state_s1,  HSM_EVENT_ENTRY},
         {&state_s1,  HSM_TEST_EVENT_NEXT},
         {&state_s11, HSM_EVENT_ENTRY},
     };
 
     hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S1);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_NEXT);
 
     verify_test_events(expected_events, sizeof(expected_events) / sizeof(expected_events[0]));
@@ -326,6 +509,7 @@ void test_event_pass_to_parent_state(void)
     test_event_t expected_events[] =
     {
         {&state_top, HSM_EVENT_ENTRY},
+        {&state_top, HSM_TEST_EVENT_GO_TO_S1},
         {&state_s1,  HSM_EVENT_ENTRY},
         {&state_s1,  HSM_TEST_EVENT_NEXT},
         {&state_s11, HSM_EVENT_ENTRY},
@@ -334,6 +518,7 @@ void test_event_pass_to_parent_state(void)
     };
 
     hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S1);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_NEXT);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_PARENT_ONLY);
 
@@ -345,6 +530,7 @@ void test_event_transition_with_different_parent(void)
     test_event_t expected_events[] =
     {
         {&state_top,  HSM_EVENT_ENTRY},
+        {&state_top,  HSM_TEST_EVENT_GO_TO_S1},
         {&state_s1,   HSM_EVENT_ENTRY},
         {&state_s1,   HSM_TEST_EVENT_NEXT},
         {&state_s11,  HSM_EVENT_ENTRY},
@@ -358,6 +544,7 @@ void test_event_transition_with_different_parent(void)
     };
 
     hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S1);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_NEXT);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_NEXT);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S121);
@@ -370,6 +557,7 @@ void test_self_transition(void)
     test_event_t expected_events[] =
     {
         {&state_top,  HSM_EVENT_ENTRY},
+        {&state_top,  HSM_TEST_EVENT_GO_TO_S1},
         {&state_s1,   HSM_EVENT_ENTRY},
         {&state_s1,   HSM_TEST_EVENT_SELF},
         {&state_s1,   HSM_EVENT_EXIT},
@@ -377,7 +565,47 @@ void test_self_transition(void)
     };
 
     hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S1);
     hsm_dispatch(&hsm, HSM_TEST_EVENT_SELF);
+
+    verify_test_events(expected_events, sizeof(expected_events) / sizeof(expected_events[0]));
+}
+
+void test_transition_from_entry_event_equal_states(void)
+{
+    test_event_t expected_events[] =
+    {
+        {&state_top, HSM_EVENT_ENTRY},
+        {&state_top, HSM_TEST_EVENT_GO_TO_S2},
+        {&state_s2a, HSM_EVENT_ENTRY},
+        {&state_s2a, HSM_EVENT_EXIT},
+        {&state_s2b, HSM_EVENT_ENTRY},
+        {&state_s2b, HSM_EVENT_EXIT},
+        {&state_s2c, HSM_EVENT_ENTRY},
+        {&state_s2c, HSM_EVENT_EXIT},
+        {&state_s2d, HSM_EVENT_ENTRY},
+    };
+
+    hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S2);
+
+    verify_test_events(expected_events, sizeof(expected_events) / sizeof(expected_events[0]));
+}
+
+void test_transition_from_entry_event_nested_states(void)
+{
+    test_event_t expected_events[] =
+    {
+        {&state_top, HSM_EVENT_ENTRY},
+        {&state_top, HSM_TEST_EVENT_GO_TO_S3},
+        {&state_s3, HSM_EVENT_ENTRY},
+        {&state_s31, HSM_EVENT_ENTRY},
+        {&state_s311, HSM_EVENT_ENTRY},
+        {&state_s3111, HSM_EVENT_ENTRY},
+    };
+
+    hsm_start(&hsm, &state_top);
+    hsm_dispatch(&hsm, HSM_TEST_EVENT_GO_TO_S3);
 
     verify_test_events(expected_events, sizeof(expected_events) / sizeof(expected_events[0]));
 }
@@ -393,6 +621,8 @@ int main(void)
     RUN_TEST(test_event_pass_to_parent_state);
     RUN_TEST(test_event_transition_with_different_parent);
     RUN_TEST(test_self_transition);
+    RUN_TEST(test_transition_from_entry_event_equal_states);
+    RUN_TEST(test_transition_from_entry_event_nested_states);
 
     return UNITY_END();
 }
